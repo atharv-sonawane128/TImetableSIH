@@ -4,6 +4,7 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import TimetableBuilder from './pages/TimetableBuilder'
 import TimetableOptions from './pages/TimetableOptions'
+import PrintableTimetable from './pages/PrintableTimetable'
 import ApprovalDashboard from './pages/ApprovalDashboard'
 import Classrooms from './pages/Classrooms'
 import Faculty from './pages/Faculty'
@@ -28,6 +29,7 @@ function App() {
                     <Route index element={<Dashboard />} />
                     <Route path="timetable" element={<TimetableBuilder />} />
                     <Route path="timetable-options" element={<TimetableOptions />} />
+                    <Route path="printable-timetable" element={<PrintableTimetable />} />
                     <Route path="approvals" element={<ApprovalDashboard />} />
                     <Route path="classrooms" element={<Classrooms />} />
                     <Route path="faculty" element={<Faculty />} />

@@ -55,26 +55,66 @@ export const DataProvider = ({ children }) => {
         {
           id: 1,
           name: 'Software Engineering',
-          code: 'a',
-          divisions: [
-            { id: 1, name: '1a1', semester: 1, specialization: 'a', series: 1, strength: 45 },
-            { id: 2, name: '1a2', semester: 1, specialization: 'a', series: 2, strength: 42 },
-            { id: 3, name: '3a1', semester: 3, specialization: 'a', series: 1, strength: 38 },
-            { id: 4, name: '3a2', semester: 3, specialization: 'a', series: 2, strength: 40 },
-            { id: 5, name: '5a1', semester: 5, specialization: 'a', series: 1, strength: 35 },
-            { id: 6, name: '5a2', semester: 5, specialization: 'a', series: 2, strength: 37 }
-          ]
+          code: 'A',
+          "semesters": [
+              {
+                  "id": 101,
+                  "name": "Semester 1",
+                   divisions: [
+                     { id: 1, name: '1A1', semester: 1, specialization: 'A', series: 1, strength: 45 },
+                     { id: 2, name: '1A2', semester: 1, specialization: 'A', series: 2, strength: 42 },
+                    ]
+              },
+              {
+                  "id": 102,
+                  "name": "Semester 3",
+                   divisions: [
+                      { id: 3, name: '3A1', semester: 3, specialization: 'A', series: 1, strength: 38 },
+                      { id: 4, name: '3A2', semester: 3, specialization: 'A', series: 2, strength: 40 },
+        
+                    ]
+              },
+              {
+                  "id": 103,
+                  "name": "Semester 5",
+                   divisions: [
+                    { id: 5, name: '5A1', semester: 5, specialization: 'A', series: 1, strength: 35 },
+                    { id: 6, name: '5A2', semester: 5, specialization: 'A', series: 2, strength: 37 }
+                  ]
+              },
+            ]
+         
         },
         {
           id: 2,
           name: 'Data Science',
-          code: 'b',
-          divisions: [
-            { id: 7, name: '1b1', semester: 1, specialization: 'b', series: 1, strength: 30 },
-            { id: 8, name: '1b2', semester: 1, specialization: 'b', series: 2, strength: 28 },
-            { id: 9, name: '3b1', semester: 3, specialization: 'b', series: 1, strength: 32 },
-            { id: 10, name: '5b1', semester: 5, specialization: 'b', series: 1, strength: 25 }
-          ]
+          code: 'B',
+           "semesters": [
+              {
+                  "id": 104,
+                  "name": "Semester 1",
+                   divisions: [
+                    { id: 7, name: '1B1', semester: 1, specialization: 'B', series: 1, strength: 30 },
+                    { id: 8, name: '1B2', semester: 1, specialization: 'B', series: 2, strength: 28 },
+            
+                    ]
+              },
+              {
+                  "id": 105,
+                  "name": "Semester 3",
+                   divisions: [
+                     { id: 9, name: '3B1', semester: 3, specialization: 'B', series: 1, strength: 32 },
+                    ]
+              },
+              {
+                  "id": 106,
+                  "name": "Semester 5",
+                   divisions: [
+                     { id: 10, name: '5B1', semester: 5, specialization: 'B', series: 1, strength: 25 }
+                    ]
+              },
+            ]
+        
         }
       ]
     },
@@ -85,21 +125,60 @@ export const DataProvider = ({ children }) => {
         {
           id: 3,
           name: 'Network Engineering',
-          code: 'c',
-          divisions: [
-            { id: 11, name: '1c1', semester: 1, specialization: 'c', series: 1, strength: 40 },
-            { id: 12, name: '1c2', semester: 1, specialization: 'c', series: 2, strength: 38 },
-            { id: 13, name: '3c1', semester: 3, specialization: 'c', series: 1, strength: 35 }
-          ]
+          code: 'C',
+           "semesters": [
+              {
+                  "id": 107,
+                  "name": "Semester 1",
+                   divisions: [
+                    { id: 11, name: '1C1', semester: 1, specialization: 'C', series: 1, strength: 40 },
+                    { id: 12, name: '1C2', semester: 1, specialization: 'C', series: 2, strength: 38 },
+            
+                    ]
+              },
+              {
+                  "id": 108,
+                  "name": "Semester 3",
+                   divisions: [
+                      { id: 13, name: '3C1', semester: 3, specialization: 'C', series: 1, strength: 35 } ]
+              },
+              {
+                  "id": 109,
+                  "name": "Semester 5",
+                   divisions: [
+                     { id: 14, name: '5C1', semester: 5, specialization: 'C', series: 1, strength: 25 }
+                    ]
+              },
+            ]
+         
         },
         {
           id: 4,
           name: 'Cybersecurity',
-          code: 'd',
-          divisions: [
-            { id: 14, name: '1d1', semester: 1, specialization: 'd', series: 1, strength: 25 },
-            { id: 15, name: '3d1', semester: 3, specialization: 'd', series: 1, strength: 22 }
-          ]
+          code: 'D',
+           "semesters": [
+              {
+                  "id": 107,
+                  "name": "Semester 1",
+                   divisions: [
+                    { id: 15, name: '1D1', semester: 1, specialization: 'D', series: 1, strength: 25 },
+                    ]
+              },
+              {
+                  "id": 108,
+                  "name": "Semester 3",
+                   divisions: [
+                      { id: 16, name: '3D1', semester: 3, specialization: 'D', series: 1, strength: 22 } ]
+              },
+              {
+                  "id": 109,
+                  "name": "Semester 5",
+                   divisions: [
+                     { id: 14, name: '5D1', semester: 5, specialization: 'D', series: 1, strength: 25 }
+                    ]
+              },
+            ]
+         
         }
       ]
     }
@@ -255,7 +334,7 @@ export const DataProvider = ({ children }) => {
     { id: 4, name: 'Machine Learning', code: 'CS401', department: 'Computer Science', credits: 4, hoursPerWeek: 4, type: 'theory' },
     { id: 5, name: 'Software Engineering', code: 'IT401', department: 'Information Technology', credits: 3, hoursPerWeek: 3, type: 'theory' },
     { id: 6, name: 'Algorithms', code: 'CS302', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
-    
+
     // Lab subjects
     { id: 7, name: 'Programming Lab', code: 'CS101L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
     { id: 8, name: 'Data Structures Lab', code: 'CS201L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
@@ -263,6 +342,9 @@ export const DataProvider = ({ children }) => {
     { id: 10, name: 'Web Development Lab', code: 'CS302L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
     { id: 11, name: 'Physics Lab', code: 'PH101L', department: 'Computer Science', credits: 1, hoursPerWeek: 1, type: 'lab' },
     { id: 12, name: 'Computer Networks Lab', code: 'CS401L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
+
+    // Library subject (no hour restrictions)
+    { id: 13, name: 'Library', code: 'LIB001', department: 'General', credits: 0, hoursPerWeek: null, type: 'library' },
   ])
 
   const [timetable, setTimetable] = useState({
@@ -357,30 +439,95 @@ export const DataProvider = ({ children }) => {
   const [selectedDivision, setSelectedDivision] = useState(null)
   const [selectedDepartment, setSelectedDepartment] = useState(null)
   const [selectedSpecialization, setSelectedSpecialization] = useState(null)
+  const [selectedSemester, setSelectedSemester] = useState(null)
   const [selectedShift, setSelectedShift] = useState(shifts[0]) // Default to first shift
 
 
   const [facultyAvailability, setFacultyAvailability] = useState({})
 
 
+  // Calculate total allocated hours for each faculty across all divisions
+  const getFacultyAllocatedHours = () => {
+    const facultyHoursMap = {}
+
+    timetable.classes.forEach(c => {
+      const facultyId = parseInt(c.facultyId)
+      if (!facultyHoursMap[facultyId]) {
+        facultyHoursMap[facultyId] = 0
+      }
+      facultyHoursMap[facultyId] += 1 // Each class represents 1 hour
+    })
+
+    return facultyHoursMap
+  }
+
   const getFacultyAvailability = (slotId, day) => {
     const occupiedFaculty = timetable.classes
       .filter(c => c.slotId == slotId && c.day === day)
       .map(c => parseInt(c.facultyId))
-    
+
+    const facultyHoursMap = getFacultyAllocatedHours()
+
     return faculty.map(f => {
       const isOccupied = occupiedFaculty.includes(parseInt(f.id))
-      const occupiedClass = timetable.classes.find(c => 
+      const occupiedClass = timetable.classes.find(c =>
         c.slotId == slotId && c.day === day && parseInt(c.facultyId) === parseInt(f.id)
       )
-      
+
+      const allocatedHours = facultyHoursMap[f.id] || 0
+      const isHoursExceeded = allocatedHours >= f.maxHoursPerWeek
+
       return {
         ...f,
-        isAvailable: !isOccupied,
-        isLocked: isOccupied,
-        lockedReason: isOccupied ? 
-          `Already assigned to ${occupiedClass?.subjectName || 'another class'} in ${occupiedClass?.divisionName || 'another division'}` 
-          : null
+        isAvailable: !isOccupied && !isHoursExceeded,
+        isLocked: isOccupied || isHoursExceeded,
+        lockedReason: isOccupied
+          ? `Already assigned to ${occupiedClass?.subjectName || 'another class'} in ${occupiedClass?.divisionName || 'another division'}`
+          : isHoursExceeded
+          ? `Faculty has reached maximum hours (${allocatedHours}/${f.maxHoursPerWeek} hours allocated)`
+          : null,
+        allocatedHours,
+        maxHours: f.maxHoursPerWeek
+      }
+    })
+  }
+
+  // Get subject availability based on allocated hours
+  const getSubjectAvailability = (divisionId) => {
+    const divisionSubjects = getSubjectsForDivision(divisionId)
+
+    return divisionSubjects.map(subjectName => {
+      // Find the subject object from the subjects array
+      const subjectObj = subjects.find(s => s.name === subjectName)
+      if (!subjectObj) return { name: subjectName, isAvailable: true, isLocked: false, lockedReason: null }
+
+      // Special handling for Library subject - no hour restrictions
+      if (subjectObj.name === 'Library' || subjectObj.type === 'library') {
+        return {
+          name: subjectName,
+          isAvailable: true,
+          isLocked: false,
+          lockedReason: null,
+          allocatedHours: 0,
+          maxHours: null
+        }
+      }
+
+      // Count current allocated hours for this subject in this division
+      const allocatedHours = timetable.classes
+        .filter(c => c.divisionId === divisionId && c.subjectName === subjectName)
+        .length // Each class represents 1 hour
+
+      const isHoursExceeded = allocatedHours >= subjectObj.hoursPerWeek
+
+      return {
+        name: subjectName,
+        isAvailable: !isHoursExceeded,
+        isLocked: isHoursExceeded,
+        lockedReason: isHoursExceeded ?
+          `Subject has reached maximum hours (${allocatedHours}/${subjectObj.hoursPerWeek} hours allocated)` : null,
+        allocatedHours,
+        maxHours: subjectObj.hoursPerWeek
       }
     })
   }
@@ -388,39 +535,40 @@ export const DataProvider = ({ children }) => {
 
   const getSubjectsForDivision = (divisionId) => {
     const division = departments
-      .flatMap(d => d.specializations)
-      .flatMap(s => s.divisions)
-      .find(d => d.id === divisionId)
+     .flatMap(d => d.specializations)
+     .flatMap(s => s.semesters )      // ✅ go into semesters
+     .flatMap(sem => sem.divisions )  // ✅ then into divisions
+     .find(div => div.id === divisionId)
     
     if (!division) return []
     
 
     const semesterSubjects = {
       1: {
-        theory: ['Mathematics I', 'Physics', 'Programming Fundamentals', 'English'],
+        theory: ['Mathematics I', 'Physics', 'Programming Fundamentals', 'English', 'Library'],
         lab: ['Programming Lab', 'Physics Lab']
       },
       2: {
-        theory: ['Data Structures', 'Web Development', 'Database Systems'],
+        theory: ['Data Structures', 'Web Development', 'Database Systems', 'Library'],
         lab: ['Data Structures Lab', 'Web Development Lab']
       },
       3: {
-        theory: ['Machine Learning', 'Software Engineering', 'Algorithms'],
+        theory: ['Machine Learning', 'Software Engineering', 'Algorithms', 'Library'],
         lab: ['Database Lab', 'Computer Networks Lab']
       },
       4: {
-        theory: ['Advanced Programming', 'System Design', 'Project Management'],
+        theory: ['Advanced Programming', 'System Design', 'Project Management', 'Library'],
         lab: ['Advanced Programming Lab', 'System Design Lab']
       },
       5: {
-        theory: ['Machine Learning', 'Web Development', 'Mobile App Development', 'Project Management'],
+        theory: ['Machine Learning', 'Web Development', 'Mobile App Development', 'Project Management', 'Library'],
         lab: []
       }
     }
     
     const divisionSubjects = semesterSubjects[division.semester] || { theory: [], lab: [] }
     return [...divisionSubjects.theory, ...divisionSubjects.lab]
-  }
+  } 
 
   // Check if a subject is a lab subject
   const isLabSubject = (subjectName) => {
@@ -431,9 +579,10 @@ export const DataProvider = ({ children }) => {
   const isEligibleForLabSplitting = (divisionId) => {
     const division = departments
       .flatMap(d => d.specializations)
-      .flatMap(s => s.divisions)
+      .flatMap(s => s.semesters)
+      .flatMap(sem => sem.divisions)
       .find(d => d.id === divisionId)
-    
+
     return division && division.semester >= 1 && division.semester <= 4
   }
 
@@ -506,6 +655,7 @@ export const DataProvider = ({ children }) => {
     selectedDivision,
     selectedDepartment,
     selectedSpecialization,
+    selectedSemester,
     selectedShift,
     
     // Classroom operations
@@ -532,8 +682,10 @@ export const DataProvider = ({ children }) => {
     setSelectedDivision,
     setSelectedDepartment,
     setSelectedSpecialization,
+    setSelectedSemester,
     setSelectedShift,
     getFacultyAvailability,
+    getSubjectAvailability,
     getSubjectsForDivision,
     
     // Lab scheduling functions

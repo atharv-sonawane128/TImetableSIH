@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { 
-  DndContext, 
-  DragOverlay, 
+import { useNavigate } from 'react-router-dom'
+import {
+  DndContext,
+  DragOverlay,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
@@ -34,6 +35,7 @@ const TimetableBuilder = () => {
     setSelectedShift
   } = useData()
   const { user, loading } = useAuth()
+  const navigate = useNavigate()
 
   const [showClassForm, setShowClassForm] = useState(false)
   const [selectedSlot, setSelectedSlot] = useState(null)
@@ -168,6 +170,45 @@ const TimetableBuilder = () => {
     setSelectedDivision(null)
   }
 
+  // Check if timetable is complete for the selected division
+  const isTimetableComplete = () => {
+    if (!selectedDivision || !selectedShift) return false
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    const timeSlots = selectedShift.timeSlots
+
+    // Check if all slots have classes assigned
+    for (const day of days) {
+      for (const slot of timeSlots) {
+        const hasClass = timetable.classes.some(c =>
+          c.divisionId === selectedDivision.id &&
+          c.day === day &&
+          c.slotId == slot.id
+        )
+        if (!hasClass) return false
+      }
+    }
+    return true
+  }
+
+  // Handle export button click
+  const handleExport = () => {
+    if (!isTimetableComplete()) {
+      alert('Please complete the timetable before exporting. All time slots must have classes assigned.')
+      return
+    }
+
+    const divisionClasses = timetable.classes.filter(c => c.divisionId === selectedDivision.id)
+
+    navigate('/printable-timetable', {
+      state: {
+        timetableData: divisionClasses,
+        division: selectedDivision,
+        shift: selectedShift
+      }
+    })
+  }
+
   // Get classes for the selected division
   const divisionClasses = timetable.classes.filter(c => c.divisionId === selectedDivision?.id)
 
@@ -195,7 +236,11 @@ const TimetableBuilder = () => {
             <Upload className="w-4 h-4 mr-2" />
             Import
           </button>
-          <button className="btn-secondary">
+          <button
+            onClick={handleExport}
+            className={`btn-secondary ${!isTimetableComplete() ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={!isTimetableComplete()}
+          >
             <Download className="w-4 h-4 mr-2" />
             Export
           </button>

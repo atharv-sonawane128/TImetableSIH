@@ -3,12 +3,13 @@ import { useData } from '../context/DataContext'
 import { X, Lock, Clock, BookOpen, User, MapPin } from 'lucide-react'
 
 const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivision, editingClass }) => {
-  const { 
-    classrooms, 
-    faculty, 
-    subjects, 
-    timeSlots, 
-    getFacultyAvailability, 
+  const {
+    classrooms,
+    faculty,
+    subjects,
+    timeSlots,
+    getFacultyAvailability,
+    getSubjectAvailability,
     getSubjectsForDivision,
     checkConflicts,
     isLabSubject,
@@ -42,19 +43,19 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
 
   useEffect(() => {
     if (selectedDivision) {
-      const subjects = getSubjectsForDivision(selectedDivision.id)
-      setAvailableSubjects(subjects)
+      const subjectAvailability = getSubjectAvailability(selectedDivision.id)
+      setAvailableSubjects(subjectAvailability)
       setFormData(prev => ({
         ...prev,
         divisionId: selectedDivision.id,
         divisionName: selectedDivision.name
       }))
-      
+
       // Load lab classrooms
       const labs = getLabClassrooms()
       setLabClassrooms(labs)
     }
-  }, [selectedDivision, getSubjectsForDivision, getLabClassrooms])
+  }, [selectedDivision, getSubjectAvailability, getLabClassrooms])
 
   useEffect(() => {
     if (selectedSlot) {
@@ -70,7 +71,27 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
 
   // Load existing data when editing
   useEffect(() => {
-    if (!editingClass) return
+    if (!editingClass) {
+      // Reset form data for new class (empty fields except slotId, day, division)
+      setFormData({
+        subject: '',
+        facultyId: '',
+        classroomId: '',
+        slotId: selectedSlot?.timeSlot?.id || '',
+        day: selectedSlot?.day || '',
+        divisionId: selectedDivision?.id || '',
+        divisionName: selectedDivision?.name || ''
+      })
+      setSecondLabData({
+        subject: '',
+        facultyId: '',
+        classroomId: ''
+      })
+      setIsLabMode(false)
+      setLabAId(null)
+      setLabBId(null)
+      return
+    }
 
     // Determine if we're editing a lab pair
     if (editingClass.isLabMode) {
@@ -124,7 +145,7 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
         divisionName: editingClass.divisionName
       }))
     }
-  }, [editingClass, timetable])
+  }, [editingClass, timetable, selectedSlot, selectedDivision])
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -161,9 +182,16 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    
+
     if (!formData.subject || !formData.facultyId || !formData.classroomId) {
       alert('Please fill in all required fields')
+      return
+    }
+
+    // Check if selected subject is locked
+    const selectedSubject = availableSubjects.find(s => s.name === formData.subject)
+    if (selectedSubject && selectedSubject.isLocked) {
+      alert('Cannot select a locked subject. Please choose an available subject.')
       return
     }
 
@@ -171,6 +199,15 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
     if (isLabMode && (!secondLabData.subject || !secondLabData.facultyId || !secondLabData.classroomId)) {
       alert('Please fill in all required fields for both lab sessions')
       return
+    }
+
+    // Check if second lab subject is locked (for lab mode)
+    if (isLabMode) {
+      const secondSubject = availableSubjects.find(s => s.name === secondLabData.subject)
+      if (secondSubject && secondSubject.isLocked) {
+        alert('Cannot select a locked subject for the second lab session.')
+        return
+      }
     }
 
     // Check if selected faculty is locked
@@ -309,12 +346,55 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
               required
             >
               <option value="">Select Subject</option>
-              {availableSubjects.map((subject, index) => (
-                <option key={index} value={subject}>
-                  {subject}
-                </option>
-              ))}
+              {availableSubjects.map((subject, index) => {
+                const isDisabled = !subject.isAvailable
+                return (
+                  <option
+                    key={index}
+                    value={subject.name}
+                    disabled={isDisabled}
+                    className={isDisabled ? 'text-gray-400 bg-gray-100' : ''}
+                  >
+                    {subject.name}{subject.isLocked ? ' 🔒' : ''} ({subject.allocatedHours || 0}/{subject.maxHours || 0} hours)
+                  </option>
+                )
+              })}
             </select>
+
+            {/* Subject Availability Info */}
+            <div className="mt-2 text-sm text-gray-600">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span>Available</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span>🔒 Hours Exceeded</span>
+                </div>
+              </div>
+              {availableSubjects.some(s => s.isLocked) && (
+                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <Lock className="w-4 h-4 mt-0.5 text-yellow-600" />
+                    <div className="text-sm text-yellow-800">
+                      <p className="font-medium mb-1">Subjects with 🔒 are locked:</p>
+                      <ul className="space-y-1 text-xs">
+                        {availableSubjects
+                          .filter(s => s.isLocked)
+                          .map(s => (
+                            <li key={s.name} className="flex items-center space-x-1">
+                              <span className="font-medium">{s.name}:</span>
+                              <span>{s.lockedReason}</span>
+                            </li>
+                          ))
+                        }
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Lab Mode Info for Lab A */}
@@ -350,7 +430,7 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
                       disabled={isDisabled}
                       className={isDisabled ? 'text-gray-400 bg-gray-100' : ''}
                     >
-                      {facultyMember.name}{facultyMember.isLocked ? ' 🔒' : ''}
+                      {facultyMember.name}{facultyMember.isLocked ? ' 🔒' : ''} ({facultyMember.allocatedHours || 0}/{facultyMember.maxHours || 0} hours)
                     </option>
                   )
                 })}
@@ -405,7 +485,7 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
               required
             >
               <option value="">Select {isLabMode ? 'Lab Classroom' : 'Classroom'}</option>
-              {(isLabMode ? labClassrooms : classrooms).map((classroom) => (
+              {(isLabMode ? labClassrooms : classrooms.filter(c => !c.type.toLowerCase().includes('lab'))).map((classroom) => (
                 <option key={classroom.id} value={classroom.id}>
                   {classroom.name} - {classroom.type} (Capacity: {classroom.capacity})
                 </option>
@@ -448,11 +528,21 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
                   required
                 >
                   <option value="">Select Lab Subject for Lab B</option>
-                  {availableSubjects.map((subject, index) => (
-                    <option key={index} value={subject}>
-                      {subject}
-                    </option>
-                  ))}
+                  {availableSubjects
+                    .filter(sub => sub.name.toLowerCase().includes('lab'))
+                    .map((subject, index) => {
+                      const isDisabled = !subject.isAvailable
+                      return (
+                        <option
+                          key={index}
+                          value={subject.name}
+                          disabled={isDisabled}
+                          className={isDisabled ? 'text-gray-400 bg-gray-100' : ''}
+                        >
+                          {subject.name}{subject.isLocked ? ' 🔒' : ''} ({subject.allocatedHours || 0}/{subject.maxHours || 0} hours)
+                        </option>
+                      )
+                    })}
                 </select>
               </div>
 

@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Building2, Plus, Search, Filter, Edit, Trash2 } from 'lucide-react'
+import { Building2, Plus, Search, Filter, Edit, Trash2, X } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../context/AuthContext'
 import ClassroomForm from '../components/ClassroomForm'
+import ClassroomSchedule from '../components/ClassroomSchedule'
 
 const Classrooms = () => {
   const { classrooms, addClassroom, updateClassroom, deleteClassroom } = useData()
@@ -10,6 +11,7 @@ const Classrooms = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingClassroom, setEditingClassroom] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [viewScheduleClassroom, setViewScheduleClassroom] = useState(null)
 
   // Show loading state while user is being authenticated
   if (loading) {
@@ -144,13 +146,33 @@ const Classrooms = () => {
             </div>
             
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <button className="w-full btn-primary text-sm">
+              <button 
+                className="w-full btn-primary text-sm"
+                onClick={() => setViewScheduleClassroom(classroom)}
+              >
                 View Schedule
               </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Classroom Schedule Modal */}
+      {viewScheduleClassroom && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-5xl w-full max-h-full overflow-auto p-6 relative">
+            <button
+              className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
+              onClick={() => setViewScheduleClassroom(null)}
+              aria-label="Close schedule"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <h2 className="text-2xl font-semibold mb-4">Schedule for {viewScheduleClassroom.name}</h2>
+            <ClassroomSchedule classroomId={viewScheduleClassroom.id} />
+          </div>
+        </div>
+      )}
 
       {/* Classroom Form Modal */}
       {(showForm || editingClassroom) && (
