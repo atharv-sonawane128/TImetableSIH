@@ -15,7 +15,8 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
     isLabSubject,
     isEligibleForLabSplitting,
     getLabClassrooms,
-    timetable
+    timetable,
+    departments
   } = useData()
 
   const [formData, setFormData] = useState({
@@ -54,8 +55,13 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
       // Load lab classrooms
       const labs = getLabClassrooms()
       setLabClassrooms(labs)
+
+      // Lab mode is disabled for 5th semester since lab classrooms are not available
+      // if (selectedDivision.semester === 5) {
+      //   setIsLabMode(true)
+      // }
     }
-  }, [selectedDivision, getSubjectAvailability, getLabClassrooms])
+  }, [selectedDivision, getSubjectAvailability, getLabClassrooms, timetable.classes])
 
   useEffect(() => {
     if (selectedSlot) {
@@ -66,8 +72,18 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
         slotId: selectedSlot.timeSlot?.id,
         day: selectedSlot.day
       }))
+
+      // Check for conflicts when slot changes
+      if (formData.classroomId && formData.facultyId) {
+        const newConflicts = checkConflicts({
+          ...formData,
+          slotId: selectedSlot.timeSlot?.id,
+          day: selectedSlot.day
+        })
+        setConflicts(newConflicts)
+      }
     }
-  }, [selectedSlot, getFacultyAvailability])
+  }, [selectedSlot, getFacultyAvailability, checkConflicts])
 
   // Load existing data when editing
   useEffect(() => {
@@ -96,7 +112,7 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
     // Determine if we're editing a lab pair
     if (editingClass.isLabMode) {
       // Find partner class in same slot/day/division
-      const partner = (timetable?.classes || []).find(c => 
+      const partner = (timetable?.classes || []).find(c =>
         c.divisionId === editingClass.divisionId &&
         c.day === editingClass.day &&
         c.slotId == editingClass.slotId &&
@@ -130,8 +146,10 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
         setLabBId(labB.id || null)
       }
 
-      // Ensure lab mode is on
-      setIsLabMode(true)
+      // Ensure lab mode is on only if not 5th semester
+      if (selectedDivision?.semester !== 5) {
+        setIsLabMode(true)
+      }
     } else {
       // Non-lab edit
       setFormData(prev => ({
@@ -158,15 +176,38 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
       const isLab = isLabSubject(value)
       const isEligible = isEligibleForLabSplitting(selectedDivision?.id)
       setIsLabMode(isLab && isEligible)
-      
+
       // Reset second lab data when subject changes
       if (!isLab || !isEligible) {
         setSecondLabData({ subject: '', facultyId: '', classroomId: '' })
       }
+
+      // Filter faculty based on selected subject
+      if (value && value !== 'Library') {
+        const currentAvailableFaculty = getFacultyAvailability(selectedSlot?.timeSlot?.id, selectedSlot?.day) || []
+        const filteredFaculty = currentAvailableFaculty.filter(facultyMember =>
+          facultyMember.subjects && facultyMember.subjects.includes(value)
+        )
+        if (filteredFaculty.length === 0) {
+          // Show a dummy entry to indicate no faculty available
+          setAvailableFaculty([{ id: 'none', name: 'No faculty available', isAvailable: false }])
+        } else {
+          setAvailableFaculty(filteredFaculty)
+        }
+
+        // Reset faculty selection if current faculty doesn't teach the new subject
+        if (formData.facultyId && !filteredFaculty.some(f => f.id === formData.facultyId)) {
+          setFormData(prev => ({ ...prev, facultyId: '' }))
+        }
+      } else {
+        // If no subject selected or Library, show all available faculty
+        const allAvailableFaculty = getFacultyAvailability(selectedSlot?.timeSlot?.id, selectedSlot?.day) || []
+        setAvailableFaculty(allAvailableFaculty)
+      }
     }
 
-    // Check conflicts when form data changes
-    if (field === 'facultyId' || field === 'classroomId') {
+    // Check conflicts when form data changes (skip for Library)
+    if (['facultyId', 'classroomId', 'slotId', 'day'].includes(field) && formData.subject !== 'Library') {
       const newFormData = { ...formData, [field]: value }
       const newConflicts = checkConflicts(newFormData)
       setConflicts(newConflicts)
@@ -183,7 +224,43 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    if (!formData.subject || !formData.facultyId || !formData.classroomId) {
+    // If subject is Library, assign without faculty and classroom
+    if (formData.subject.toLowerCase() === 'library') {
+      const selectedTimeSlot = timeSlots.find(s => s.id === formData.slotId)
+      const classData = {
+        ...formData,
+        subjectName: formData.subject,
+        facultyName: '',
+        classroomName: '',
+        timeSlot: selectedTimeSlot?.time || '',
+        day: formData.day,
+        facultyId: null,
+        classroomId: null,
+        slotId: parseInt(formData.slotId),
+        isLabMode: false,
+        classStrength: selectedDivision?.strength,
+        id: editingClass?.id || undefined
+      }
+      onSave(classData)
+      onClose()
+      return
+    }
+
+    // Prevent labs from being assigned to the last slot
+    const maxSlotId = Math.max(...timeSlots.map(s => s.id))
+    if (isLabMode && formData.slotId === maxSlotId) {
+      alert('Labs cannot be assigned to the last slot as labs require 2-hour slots.')
+      return
+    }
+
+    // Skip faculty and classroom validation for Library subjects
+    if (!formData.subject) {
+      alert('Please select a subject')
+      return
+    }
+
+    // For non-Library subjects, require faculty and classroom
+    if (formData.subject !== 'Library' && (!formData.facultyId || !formData.classroomId)) {
       alert('Please fill in all required fields')
       return
     }
@@ -232,46 +309,61 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
 
     // For lab mode, create/update different subjects for Lab A and Lab B
     if (isLabMode) {
-      const secondFacultyMember = faculty.find(f => f.id === secondLabData.facultyId)
-      const secondClassroom = classrooms.find(c => c.id === secondLabData.classroomId)
-      
-      // Create Lab A class data
-      const labAClassData = {
-        ...formData,
-        subjectName: formData.subject,
-        facultyName: facultyMember?.name || '',
-        classroomName: selectedClassroom?.name || '',
-        timeSlot: selectedTimeSlot?.time || '',
-        day: formData.day,
-        facultyId: parseInt(formData.facultyId),
-        classroomId: parseInt(formData.classroomId),
-        slotId: parseInt(formData.slotId),
-        isLabMode: isLabMode,
-        classStrength: Math.ceil(selectedDivision?.strength / 2),
-        labSession: 'A',
-        id: labAId || undefined
+      if (selectedDivision?.semester === 5) {
+        // For 5th semester, save a single lab class spanning two slots
+        const classData = {
+          ...formData,
+          subjectName: formData.subject,
+          facultyName: facultyMember?.name || '',
+          classroomName: selectedClassroom?.name || '',
+          timeSlot: selectedTimeSlot?.time || '',
+          day: formData.day,
+          facultyId: parseInt(formData.facultyId),
+          classroomId: parseInt(formData.classroomId),
+          slotId: parseInt(formData.slotId),
+          isLabMode: true,
+          classStrength: selectedDivision?.strength,
+          spansTwoSlots: true,
+          id: editingClass?.id || undefined
+        }
+        onSave(classData)
+      } else {
+        // For other semesters, save two separate lab classes for session A and B
+        const classDataA = {
+          ...formData,
+          subjectName: formData.subject,
+          facultyName: facultyMember?.name || '',
+          classroomName: selectedClassroom?.name || '',
+          timeSlot: selectedTimeSlot?.time || '',
+          day: formData.day,
+          facultyId: parseInt(formData.facultyId),
+          classroomId: parseInt(formData.classroomId),
+          slotId: parseInt(formData.slotId),
+          isLabMode: true,
+          classStrength: selectedDivision?.strength,
+          labSession: 'A',
+          spansTwoSlots: true,
+          id: editingClass?.id || undefined
+        }
+        const classDataB = {
+          ...formData,
+          subjectName: secondLabData.subject,
+          facultyName: faculty.find(f => f.id === secondLabData.facultyId)?.name || '',
+          classroomName: classrooms.find(c => c.id === parseInt(secondLabData.classroomId))?.name || '',
+          timeSlot: selectedTimeSlot?.time || '',
+          day: formData.day,
+          facultyId: parseInt(secondLabData.facultyId),
+          classroomId: parseInt(secondLabData.classroomId),
+          slotId: parseInt(formData.slotId),
+          isLabMode: true,
+          classStrength: selectedDivision?.strength,
+          labSession: 'B',
+          spansTwoSlots: true,
+          id: null
+        }
+        // Pass as array to handle bulk save properly
+        onSave([classDataA, classDataB])
       }
-      
-      // Create Lab B class data with selected subject
-      const labBClassData = {
-        ...formData,
-        subject: secondLabData.subject,
-        subjectName: secondLabData.subject,
-        facultyName: secondFacultyMember?.name || '',
-        classroomName: secondClassroom?.name || '',
-        timeSlot: selectedTimeSlot?.time || '',
-        day: formData.day,
-        facultyId: parseInt(secondLabData.facultyId),
-        classroomId: parseInt(secondLabData.classroomId),
-        slotId: parseInt(formData.slotId),
-        isLabMode: isLabMode,
-        classStrength: Math.ceil(selectedDivision?.strength / 2),
-        labSession: 'B',
-        id: labBId || undefined
-      }
-      
-      // Save both lab classes together to prevent duplicates
-      onSave([labAClassData, labBClassData])
     } else {
       // Regular class (non-lab mode)
       const classData = {
@@ -288,10 +380,9 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
         classStrength: selectedDivision?.strength,
         id: editingClass?.id || undefined
       }
-      
       onSave(classData)
     }
-    
+
     onClose()
   }
 
@@ -364,14 +455,12 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
             {/* Subject Availability Info */}
             <div className="mt-2 text-sm text-gray-600">
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Available</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span>🔒 Hours Exceeded</span>
-                </div>
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <span>Available</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span>🔒 Hours Exceeded</span>
               </div>
               {availableSubjects.some(s => s.isLocked) && (
                 <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -406,92 +495,119 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
             </div>
           )}
 
-          {/* Faculty Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <User className="w-4 h-4 inline mr-2" />
-              {isLabMode ? 'Lab Faculty A *' : 'Faculty *'}
-            </label>
-            <select
-              value={formData.facultyId}
-              onChange={(e) => handleInputChange('facultyId', e.target.value)}
-              className="input-field"
-              required
-            >
-              <option value="">Select Faculty</option>
-              {availableFaculty
-                .filter(f => isLabMode ? f.id !== parseInt(secondLabData.facultyId) : true)
-                .map((facultyMember) => {
-                  const isDisabled = !facultyMember.isAvailable
+          {/* Faculty Selection - Hide for Library */}
+          {formData.subject !== 'Library' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <User className="w-4 h-4 inline mr-2" />
+                {isLabMode ? 'Lab Faculty A *' : 'Faculty *'}
+              </label>
+              <select
+                value={formData.facultyId}
+                onChange={(e) => handleInputChange('facultyId', e.target.value)}
+                className="input-field"
+                required
+              >
+                <option value="">Select Faculty</option>
+                {availableFaculty.length === 1 && availableFaculty[0].id === 'none' ? (
+                  <option value="" disabled className="text-gray-400 bg-gray-100">
+                    No faculty available
+                  </option>
+                ) : (
+                  availableFaculty
+                    .filter(f => isLabMode ? f.id !== parseInt(secondLabData.facultyId) : true)
+                    .map((facultyMember) => {
+                      const isDisabled = !facultyMember.isAvailable
+                      return (
+                        <option
+                          key={facultyMember.id}
+                          value={facultyMember.id}
+                          disabled={isDisabled}
+                          className={isDisabled ? 'text-gray-400 bg-gray-100' : ''}
+                        >
+                          {facultyMember.name}{facultyMember.isLocked ? ' 🔒' : ''} ({facultyMember.allocatedHours || 0}/{facultyMember.maxHours || 0} hours)
+                        </option>
+                      )
+                    })
+                )}
+              </select>
+
+              {/* Faculty Availability Info */}
+              <div className="mt-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span>Available</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span>🔒 Reserved (Locked)</span>
+                  </div>
+                </div>
+                {availableFaculty.some(f => f.isLocked) && (
+                  <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <Lock className="w-4 h-4 mt-0.5 text-yellow-600" />
+                      <div className="text-sm text-yellow-800">
+                        <p className="font-medium mb-1">Faculty with 🔒 are locked:</p>
+                        <ul className="space-y-1 text-xs">
+                          {availableFaculty
+                            .filter(f => f.isLocked)
+                            .map(f => (
+                              <li key={f.id} className="flex items-center space-x-1">
+                                <span className="font-medium">{f.name}:</span>
+                                <span>{f.lockedReason}</span>
+                              </li>
+                            ))
+                          }
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Classroom Selection - Hide for Library */}
+          {formData.subject !== 'Library' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <MapPin className="w-4 h-4 inline mr-2" />
+                {isLabMode ? 'Lab Classroom A *' : 'Classroom *'}
+              </label>
+              <select
+                value={formData.classroomId}
+                onChange={(e) => handleInputChange('classroomId', e.target.value)}
+                className="input-field"
+                required
+              >
+                <option value="">Select {isLabMode ? 'Lab Classroom' : 'Classroom'}</option>
+                {(selectedDivision?.semester === 5
+                  ? classrooms.filter(c => !c.type.toLowerCase().includes('lab'))
+                  : (isLabMode ? labClassrooms : classrooms.filter(c => !c.type.toLowerCase().includes('lab')))
+                ).map((classroom) => {
+                  // Check if classroom is occupied in this slot/day
+                  const isOccupied = timetable.classes.some(c =>
+                    c.classroomId === classroom.id &&
+                    c.slotId == formData.slotId &&
+                    c.day === formData.day &&
+                    c.id !== (editingClass?.id || null)
+                  )
                   return (
-                    <option 
-                      key={facultyMember.id} 
-                      value={facultyMember.id}
-                      disabled={isDisabled}
-                      className={isDisabled ? 'text-gray-400 bg-gray-100' : ''}
+                    <option
+                      key={classroom.id}
+                      value={classroom.id}
+                      disabled={isOccupied}
+                      className={isOccupied ? 'text-gray-400 bg-gray-100' : ''}
                     >
-                      {facultyMember.name}{facultyMember.isLocked ? ' 🔒' : ''} ({facultyMember.allocatedHours || 0}/{facultyMember.maxHours || 0} hours)
+                      {classroom.name} - {classroom.type} (Capacity: {classroom.capacity}){isOccupied ? ' 🔒 Occupied' : ''}
                     </option>
                   )
                 })}
-            </select>
-            
-            {/* Faculty Availability Info */}
-            <div className="mt-2 text-sm text-gray-600">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Available</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span>🔒 Reserved (Locked)</span>
-                </div>
-              </div>
-              {availableFaculty.some(f => f.isLocked) && (
-                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <div className="flex items-start space-x-2">
-                    <Lock className="w-4 h-4 mt-0.5 text-yellow-600" />
-                    <div className="text-sm text-yellow-800">
-                      <p className="font-medium mb-1">Faculty with 🔒 are locked:</p>
-                      <ul className="space-y-1 text-xs">
-                        {availableFaculty
-                          .filter(f => f.isLocked)
-                          .map(f => (
-                            <li key={f.id} className="flex items-center space-x-1">
-                              <span className="font-medium">{f.name}:</span>
-                              <span>{f.lockedReason}</span>
-                            </li>
-                          ))
-                        }
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
+              </select>
             </div>
-          </div>
-
-          {/* Classroom Selection */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <MapPin className="w-4 h-4 inline mr-2" />
-              {isLabMode ? 'Lab Classroom A *' : 'Classroom *'}
-            </label>
-            <select
-              value={formData.classroomId}
-              onChange={(e) => handleInputChange('classroomId', e.target.value)}
-              className="input-field"
-              required
-            >
-              <option value="">Select {isLabMode ? 'Lab Classroom' : 'Classroom'}</option>
-              {(isLabMode ? labClassrooms : classrooms.filter(c => !c.type.toLowerCase().includes('lab'))).map((classroom) => (
-                <option key={classroom.id} value={classroom.id}>
-                  {classroom.name} - {classroom.type} (Capacity: {classroom.capacity})
-                </option>
-              ))}
-            </select>
-          </div>
+          )}
 
           {/* Lab Mode - Second Lab Session */}
           {isLabMode && (
@@ -564,8 +680,8 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
                     .map((facultyMember) => {
                       const isDisabled = !facultyMember.isAvailable
                       return (
-                        <option 
-                          key={facultyMember.id} 
+                        <option
+                          key={facultyMember.id}
                           value={facultyMember.id}
                           disabled={isDisabled}
                           className={isDisabled ? 'text-gray-400 bg-gray-100' : ''}
@@ -604,12 +720,13 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
 
           {/* Conflicts Display */}
           {conflicts.length > 0 && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-              <h4 className="font-medium text-red-800 mb-2">Conflicts Detected:</h4>
-              <ul className="space-y-1">
+            <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg">
+              <h4 className="font-medium text-yellow-800 mb-2">Conflicts Detected:</h4>
+              <ul className="space-y-1 text-sm text-yellow-700">
                 {conflicts.map((conflict, index) => (
-                  <li key={index} className="text-sm text-red-700">
-                    • {conflict.message}
+                  <li key={index} className="flex items-center space-x-2">
+                    <span>•</span>
+                    <span>{conflict.message}</span>
                   </li>
                 ))}
               </ul>
@@ -640,4 +757,3 @@ const EnhancedClassForm = ({ isOpen, onClose, onSave, selectedSlot, selectedDivi
 }
 
 export default EnhancedClassForm
-

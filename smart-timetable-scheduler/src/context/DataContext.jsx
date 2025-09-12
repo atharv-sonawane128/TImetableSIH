@@ -87,7 +87,7 @@ export const DataProvider = ({ children }) => {
         },
         {
           id: 2,
-          name: 'Data Science',
+          name: 'Artificial Intelligence',
           code: 'B',
            "semesters": [
               {
@@ -110,7 +110,9 @@ export const DataProvider = ({ children }) => {
                   "id": 106,
                   "name": "Semester 5",
                    divisions: [
-                     { id: 10, name: '5B1', semester: 5, specialization: 'B', series: 1, strength: 25 }
+                     { id: 10, name: '5B1', semester: 5, specialization: 'B', series: 1, strength: 55 },
+                     { id: 18, name: '5B2', semester: 5, specialization: 'B', series: 1, strength: 50 },
+                     { id: 19, name: '5B3', semester: 5, specialization: 'B', series: 1, strength: 40 }
                     ]
               },
             ]
@@ -174,7 +176,7 @@ export const DataProvider = ({ children }) => {
                   "id": 109,
                   "name": "Semester 5",
                    divisions: [
-                     { id: 14, name: '5D1', semester: 5, specialization: 'D', series: 1, strength: 25 }
+                     { id: 17, name: '5D1', semester: 5, specialization: 'D', series: 1, strength: 25 }
                     ]
               },
             ]
@@ -190,63 +192,69 @@ export const DataProvider = ({ children }) => {
     { id: 2, name: 'A-102', capacity: 30, type: 'Lab', status: 'Available', equipment: ['Computers', 'Projector'] },
     { id: 3, name: 'B-201', capacity: 40, type: 'Seminar Room', status: 'Available', equipment: ['Smart Board', 'Audio System'] },
     { id: 4, name: 'B-202', capacity: 60, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'Whiteboard'] },
-    { id: 5, name: 'C-301', capacity: 35, type: 'Lab', status: 'Available', equipment: ['Computers', 'Smart Board'] },
-    { id: 6, name: 'C-312', capacity: 50, type: 'Lab', status: 'Available', equipment: ['Computers', 'Smart Board'] },
-    { id: 7, name: 'C-311', capacity: 60, type: 'Lab', status: 'Available', equipment: ['Computers', 'Smart Board'] },
     { id: 8, name: 'B-205', capacity: 45, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'WhiteBoard'] },
     { id: 9, name: 'A-212', capacity: 55, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'WhiteBoard'] },
+    { id: 5, name: 'C-301', capacity: 35, type: 'Lab', status: 'Available', equipment: ['Computers', 'Smart Board'] },
+    { id: 6, name: 'C-311', capacity: 50, type: 'Lab', status: 'Available', equipment: ['Computers', 'Smart Board'] },
+    { id: 7, name: 'C-312', capacity: 60, type: 'Lab', status: 'Available', equipment: ['Computers', 'Smart Board'] },
+   { id: 10, name: 'C-311', capacity: 55, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'WhiteBoard'] },
+    { id: 11, name: 'C-312', capacity: 55, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'WhiteBoard'] },
+    { id: 12, name: 'C-325', capacity: 55, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'WhiteBoard'] },
+    { id: 13, name: 'C-326', capacity: 55, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'WhiteBoard'] },
+    { id: 14, name: 'C-327', capacity: 55, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'WhiteBoard'] },
+    { id: 15, name: 'C-313', capacity: 55, type: 'Lecture Hall', status: 'Available', equipment: ['Projector', 'WhiteBoard'] },
   ])
 
   const [faculty, setFaculty] = useState([
-    { 
-      id: 1, 
-      name: 'Dr. Atharva Sonawane', 
-      department: 'Computer Science', 
+    {
+      id: 1,
+      name: 'Dr. Atharva Sonawane',
+      department: 'Computer Science',
       email: 'sonawaneatharvak@gmail.com',
       phone: '+91 8169982451',
-      subjects: ['Data Structures', 'Algorithms'],
+      subjects: ['Professional And Corporate Ethics', 'Design and Analysis of Algorithm'],
       availability: 'Full-time',
-      maxHoursPerWeek: 40
+      maxHoursPerWeek: 60
     },
-    { 
-      id: 2, 
+    {
+      id: 2,
       name: 'Prof. Aditya Gore',
-      department: 'Information Technology', 
+      department: 'Information Technology',
       email: 'Gore.aditya@gmail.com',
       phone: '+91 9405332960',
-      subjects: ['Web Development', 'Database Systems'],
+      subjects: ['Enterprise Programming with JAVA Lab',],
       availability: 'Full-time',
-      maxHoursPerWeek: 40
+      maxHoursPerWeek: 60
     },
-    { 
-      id: 3, 
-      name: 'Dr. Rishita Kumari', 
-      department: 'Computer Science', 
+    {
+      id: 3,
+      name: 'Dr. Rishita Kumari',
+      department: 'Computer Science',
       email: 'rishitakumari0828@gmail.com',
       phone: '+91 7742598336',
-      subjects: ['Machine Learning', 'AI'],
+      subjects: ['Quant and Reasoning', 'Artificial Intelligence'],
       availability: 'Part-time',
-      maxHoursPerWeek: 20
+      maxHoursPerWeek: 30
     },
-    { 
-      id: 4, 
+    {
+      id: 4,
       name: 'Prof. Ayush Sharma',
-      department: 'Computer Science', 
+      department: 'Computer Science',
       email: 'ayushsharma001@gmail.com',
       phone: '+91 9137253356',
-      subjects: ['Java', 'Python'],
+      subjects: ['Artificial Intelligence Lab','Amazon Web Services'],
       availability: 'Full-time',
-      maxHoursPerWeek: 40
+      maxHoursPerWeek: 60
     },
-    { 
-      id: 5, 
+    {
+      id: 5,
       name: 'Prof. Sourabh Nankatai',
-      department: 'Computer Science', 
+      department: 'Computer Science',
       email: 'nan.sourabh119@gmail.com',
       phone: '+91 7999787883',
-      subjects: ['TOC', 'DBMS'],
+      subjects: ['Theory of Computation', 'Design and Analysis of Algorithm Lab'],
       availability: 'Full-time',
-      maxHoursPerWeek: 40
+      maxHoursPerWeek: 60
     },
     {
       id: 6,
@@ -254,9 +262,9 @@ export const DataProvider = ({ children }) => {
       department: 'Computer Science',
       email: 'dhokla.parikshit123@gmail.com',
       phone: '+91 7016570205',
-      subjects: ['EPJ', 'DAA'],
+      subjects: ['Enterprise Programming with JAVA',],
       availability: 'Full-time',
-      maxHoursPerWeek: 40
+      maxHoursPerWeek: 60
     }
   ])
 
@@ -327,25 +335,54 @@ export const DataProvider = ({ children }) => {
   ])
 
   const [subjects, setSubjects] = useState([
-    // Theory subjects
-    { id: 1, name: 'Data Structures', code: 'CS301', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
-    { id: 2, name: 'Web Development', code: 'IT302', department: 'Information Technology', credits: 4, hoursPerWeek: 4, type: 'theory' },
-    { id: 3, name: 'Database Systems', code: 'CS303', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
-    { id: 4, name: 'Machine Learning', code: 'CS401', department: 'Computer Science', credits: 4, hoursPerWeek: 4, type: 'theory' },
-    { id: 5, name: 'Software Engineering', code: 'IT401', department: 'Information Technology', credits: 3, hoursPerWeek: 3, type: 'theory' },
-    { id: 6, name: 'Algorithms', code: 'CS302', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
+    // Theory subjects (increased hours for testing)
+    { id: 1, name: 'Data Structures', code: 'CS301', department: 'Computer Science', credits: 3, hoursPerWeek: 5, type: 'theory' },
+    { id: 2, name: 'Web Development', code: 'IT302', department: 'Information Technology', credits: 4, hoursPerWeek: 6, type: 'theory' },
+    { id: 3, name: 'Database Systems', code: 'CS303', department: 'Computer Science', credits: 3, hoursPerWeek: 5, type: 'theory' },
+    { id: 4, name: 'Machine Learning', code: 'CS401', department: 'Computer Science', credits: 4, hoursPerWeek: 6, type: 'theory' },
+    { id: 5, name: 'Software Engineering', code: 'IT401', department: 'Information Technology', credits: 3, hoursPerWeek: 5, type: 'theory' },
+    { id: 6, name: 'Algorithms', code: 'CS302', department: 'Computer Science', credits: 3, hoursPerWeek: 5, type: 'theory' },
+    { id: 7, name: 'Mathematics I', code: 'MH302', department: 'Computer Science', credits: 3, hoursPerWeek: 5, type: 'theory' },
+    { id: 8, name: 'English', code: 'EN101', department: 'Computer Science', credits: 3, hoursPerWeek: 1, type: 'theory' },
+    { id: 9, name: 'Advanced Programming', code: 'CS406', department: 'Computer Science', credits: 3, hoursPerWeek: 2, type: 'theory' },
+    { id: 10, name: 'System Design', code: 'CS405', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
+    { id: 11, name: 'Project Management', code: 'CS202', department: 'Computer Science', credits: 3, hoursPerWeek: 2, type: 'theory' },
+    { id: 12, name: 'Physics', code: 'CS105', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
+    { id: 13, name: 'Programming Fundamentals', code: 'CS409', department: 'Computer Science', credits: 3, hoursPerWeek: 2, type: 'theory' },
+    { id: 14, name: 'Mobile App Development', code: 'CS502', department: 'Computer Science', credits: 3, hoursPerWeek: 4, type: 'theory' },
+    
+    
 
-    // Lab subjects
-    { id: 7, name: 'Programming Lab', code: 'CS101L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
-    { id: 8, name: 'Data Structures Lab', code: 'CS201L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
-    { id: 9, name: 'Database Lab', code: 'CS301L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
-    { id: 10, name: 'Web Development Lab', code: 'CS302L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
-    { id: 11, name: 'Physics Lab', code: 'PH101L', department: 'Computer Science', credits: 1, hoursPerWeek: 1, type: 'lab' },
-    { id: 12, name: 'Computer Networks Lab', code: 'CS401L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
+    // Lab subjects (increased hours for testing)
+    { id: 15, name: 'Programming Lab', code: 'CS101L', department: 'Computer Science', credits: 2, hoursPerWeek: 4, type: 'lab' },
+    { id: 16, name: 'Data Structures Lab', code: 'CS201L', department: 'Computer Science', credits: 2, hoursPerWeek: 4, type: 'lab' },
+    { id: 17, name: 'Database Lab', code: 'CS301L', department: 'Computer Science', credits: 2, hoursPerWeek: 4, type: 'lab' },
+    { id: 18, name: 'Web Development Lab', code: 'CS302L', department: 'Computer Science', credits: 2, hoursPerWeek: 4, type: 'lab' },
+    { id: 19, name: 'Physics Lab', code: 'PH101L', department: 'Computer Science', credits: 1, hoursPerWeek: 2, type: 'lab' },
+    { id: 20, name: 'Computer Networks Lab', code: 'CS402L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
+    { id: 21, name: 'Advanced Programming Lab', code: 'CS403L', department: 'Computer Science', credits: 2, hoursPerWeek: 4, type: 'lab' },
+    { id: 22, name: 'System Design Lab', code: 'CS404L', department: 'Computer Science', credits: 2, hoursPerWeek: 4, type: 'lab' },
+    { id: 30, name: 'Enterprise Programming with JAVA Lab', code: 'CS504L', department: 'Computer Science', credits: 3, hoursPerWeek: 2, type: 'lab' },
+    { id: 31, name: 'Design and Analysis of Algorithm Lab', code: 'CS505L', department: 'Computer Science', credits: 3, hoursPerWeek: 4, type: 'lab' },
+    
 
     // Library subject (no hour restrictions)
-    { id: 13, name: 'Library', code: 'LIB001', department: 'General', credits: 0, hoursPerWeek: null, type: 'library' },
-  ])
+   
+    { id: 33, name: 'Artificial Intelligence Lab', code: 'CS507L', department: 'Computer Science', credits: 2, hoursPerWeek: 2, type: 'lab' },
+
+
+
+    //Real 5th semester subjects for testing
+    { id: 24, name: 'Design and Analysis of Algorithm', code: 'CS501', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
+    { id: 25, name: 'Artificial Intelligence', code: 'CS502', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
+    { id: 26, name: 'Theory of Computation', code: 'CS503', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
+    { id: 27, name: 'Enterprise Programming with JAVA', code: 'CS504', department: 'Computer Science', credits: 3, hoursPerWeek: 2, type: 'theory' },
+    { id: 28, name: 'Professional And Corporate Ethics', code: 'CS505', department: 'Computer Science', credits: 3, hoursPerWeek: 1, type: 'theory' },
+    { id: 29, name: 'Quant and Reasoning', code: 'CS506', department: 'Computer Science', credits: 3, hoursPerWeek: 3, type: 'theory' },
+    { id: 23, name: 'Library', code: 'LIB001', department: 'General', credits: 0, hoursPerWeek: null, type: 'library' },
+     { id: 32, name: 'Amazon Web Services', code: 'CS508', department: 'Computer Science', credits: 3, hoursPerWeek: 2, type: 'theory' },
+    
+    ])
 
   const [timetable, setTimetable] = useState({
     slots: [
@@ -414,10 +451,18 @@ export const DataProvider = ({ children }) => {
   const addClass = (classData) => {
 
     const uniqueId = `${Date.now()}_${Math.floor(Math.random() * 1e6)}`
-    const newClass = { ...classData, id: classData.id ?? uniqueId }
+    // Normalize IDs to numbers for consistency
+    const normalizedClass = {
+      ...classData,
+      id: classData.id ?? uniqueId,
+      classroomId: Number(classData.classroomId),
+      facultyId: Number(classData.facultyId),
+      divisionId: Number(classData.divisionId),
+      slotId: Number(classData.slotId)
+    }
     setTimetable(prev => ({
       ...prev,
-      classes: [...prev.classes, newClass]
+      classes: [...prev.classes, normalizedClass]
     }))
   }
 
@@ -455,7 +500,12 @@ export const DataProvider = ({ children }) => {
       if (!facultyHoursMap[facultyId]) {
         facultyHoursMap[facultyId] = 0
       }
-      facultyHoursMap[facultyId] += 1 // Each class represents 1 hour
+      // Count 2 hours for lab sessions spanning two slots, else 1 hour
+      if (c.isLabMode) {
+        facultyHoursMap[facultyId] += 2
+      } else {
+        facultyHoursMap[facultyId] += 1
+      }
     })
 
     return facultyHoursMap
@@ -516,7 +566,7 @@ export const DataProvider = ({ children }) => {
       // Count current allocated hours for this subject in this division
       const allocatedHours = timetable.classes
         .filter(c => c.divisionId === divisionId && c.subjectName === subjectName)
-        .length // Each class represents 1 hour
+        .reduce((acc, c) => acc + (c.isLabMode ? 2 : 1), 0) // Count 2 hours for lab sessions
 
       const isHoursExceeded = allocatedHours >= subjectObj.hoursPerWeek
 
@@ -561,8 +611,8 @@ export const DataProvider = ({ children }) => {
         lab: ['Advanced Programming Lab', 'System Design Lab']
       },
       5: {
-        theory: ['Machine Learning', 'Web Development', 'Mobile App Development', 'Project Management', 'Library'],
-        lab: []
+        theory: ['Design and Analysis of Algorithm', 'Artificial Intelligence', 'Theory of Computation', 'Enterprise Programming with JAVA', 'Professional And Corporate Ethics', 'Quant and Reasoning', 'Amazon Web Services', 'Library'],
+        lab: ['Design and Analysis of Algorithm Lab', 'Artificial Intelligence Lab', 'Enterprise Programming with JAVA Lab']
       }
     }
     
@@ -582,6 +632,11 @@ export const DataProvider = ({ children }) => {
       .flatMap(s => s.semesters)
       .flatMap(sem => sem.divisions)
       .find(d => d.id === divisionId)
+
+    // Disable lab splitting for 5th semester
+    if (division && division.semester === 5) {
+      return false
+    }
 
     return division && division.semester >= 1 && division.semester <= 4
   }

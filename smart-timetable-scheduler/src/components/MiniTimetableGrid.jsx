@@ -3,7 +3,7 @@ import { useData } from '../context/DataContext'
 
 const MiniTimetableGrid = ({ classes = [], title = 'Scheduled Classes' }) => {
   const { timeSlots } = useData()
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
   const getClassesForSlot = (day, timeSlot) => {
     return classes.filter(c => c.day === day && (c.time === timeSlot.time || c.timeSlot === timeSlot.time))

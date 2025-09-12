@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building2, Plus, Search, Filter, Edit, Trash2, X } from 'lucide-react'
+import { Building2, Plus, Search, Filter, Edit, Trash2, X, Printer } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../context/AuthContext'
 import ClassroomForm from '../components/ClassroomForm'
@@ -68,13 +68,22 @@ const Classrooms = () => {
             Manage classroom resources and availability
           </p>
         </div>
-        <button 
-          onClick={() => setShowForm(true)}
-          className="btn-primary"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Classroom
-        </button>
+        <div className="flex space-x-2">
+          <button 
+            onClick={() => setShowForm(true)}
+            className="btn-primary"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Classroom
+          </button>
+          <button
+            onClick={() => window.open('/printable-classroom-schedules', '_blank')}
+            className="btn-secondary flex items-center"
+          >
+            <Printer className="w-4 h-4 mr-2" />
+            View All Schedules
+          </button>
+        </div>
       </div>
 
       {/* Search and Filter */}
@@ -160,7 +169,14 @@ const Classrooms = () => {
       {/* Classroom Schedule Modal */}
       {viewScheduleClassroom && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-5xl w-full max-h-full overflow-auto p-6 relative">
+          <div className="bg-white rounded-lg shadow-lg max-w-7xl w-full max-h-full overflow-auto p-6 relative">
+            <button
+              className="absolute top-4 right-12 text-gray-600 hover:text-gray-900"
+              onClick={() => window.print()}
+              aria-label="Print schedule"
+            >
+              <Printer className="w-6 h-6" />
+            </button>
             <button
               className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
               onClick={() => setViewScheduleClassroom(null)}

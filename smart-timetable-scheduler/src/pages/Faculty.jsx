@@ -1,7 +1,8 @@
-import { Users, Plus, Search, Mail, Phone, Edit2, Save, X } from 'lucide-react'
+import { Users, Plus, Search, Mail, Phone, Edit2, Save, X, Printer } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useData } from '../context/DataContext'
 import { useState } from 'react'
+import FacultySchedule from '../components/FacultySchedule'
 
 const Faculty = () => {
   const { user, loading } = useAuth()
@@ -9,6 +10,7 @@ const Faculty = () => {
   const [editingId, setEditingId] = useState(null)
   const [editForm, setEditForm] = useState({})
   const [searchTerm, setSearchTerm] = useState('')
+  const [viewScheduleFaculty, setViewScheduleFaculty] = useState(null)
 
   // Show loading state while user is being authenticated
   if (loading) {
@@ -65,11 +67,14 @@ const Faculty = () => {
     setEditForm({})
   }
 
-  const filteredFaculty = faculty.filter(f => 
-    f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    f.email.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredFaculty = faculty.filter(f => {
+    const term = searchTerm ? searchTerm.toLowerCase() : ''
+    return (
+      f.name.toLowerCase().includes(term) ||
+      f.department.toLowerCase().includes(term) ||
+      f.email.toLowerCase().includes(term)
+    )
+  })
 
   return (
     <div className="space-y-6">
@@ -235,7 +240,14 @@ const Faculty = () => {
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-gray-200 flex space-x-2">
-                  <button className="flex-1 btn-primary text-sm">
+                  <button 
+                    className="flex-1 btn-primary text-sm"
+                    onClick={() => {
+                      if (member && member.id) {
+                        setViewScheduleFaculty(member)
+                      }
+                    }}
+                  >
                     View Schedule
                   </button>
                   <button 
@@ -251,6 +263,37 @@ const Faculty = () => {
           </div>
         ))}
       </div>
+
+      {/* Faculty Schedule Modal */}
+      {viewScheduleFaculty && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-7xl w-full max-h-full overflow-auto p-6 relative" id="faculty-schedule-print-area">
+            <button
+              className="absolute top-4 right-12 text-gray-600 hover:text-gray-900"
+              onClick={() => {
+                const printContents = document.getElementById('faculty-schedule-print-area').innerHTML;
+                const originalContents = document.body.innerHTML;
+                document.body.innerHTML = printContents;
+                window.print();
+                document.body.innerHTML = originalContents;
+                window.location.reload();
+              }}
+              aria-label="Print schedule"
+            >
+              <Printer className="w-6 h-6" />
+            </button>
+            <button
+              className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
+              onClick={() => setViewScheduleFaculty(null)}
+              aria-label="Close schedule"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <h2 className="text-2xl font-semibold mb-4">Schedule for {viewScheduleFaculty.name}</h2>
+            <FacultySchedule facultyId={viewScheduleFaculty.id} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

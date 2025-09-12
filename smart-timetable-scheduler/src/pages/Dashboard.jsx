@@ -39,21 +39,21 @@ const Dashboard = () => {
     )
   }
   
-  const availableClassrooms = classrooms.filter(c => c.status === 'Available').length
-  const occupiedClassrooms = classrooms.filter(c => c.status === 'Occupied').length
+  const availableClassrooms = Array.isArray(classrooms) ? classrooms.filter(c => c.status === 'Available').length : 0
+  const occupiedClassrooms = Array.isArray(classrooms) ? classrooms.filter(c => c.status === 'Occupied').length : 0
   
   const stats = [
     {
       name: 'Total Classes Scheduled',
-      value: timetable.classes.length.toString(),
-      change: '+12%',
+      value: timetable && Array.isArray(timetable.classes) ? timetable.classes.length.toString() : '0',
+      change: '',
       changeType: 'positive',
       icon: Calendar,
     },
     {
       name: 'Active Faculty',
-      value: faculty.length.toString(),
-      change: '+3',
+      value: Array.isArray(faculty) ? faculty.length.toString() : '0',
+      change: '',
       changeType: 'positive',
       icon: Users,
     },
@@ -66,8 +66,8 @@ const Dashboard = () => {
     },
     {
       name: 'Total Students',
-      value: students.length.toString(),
-      change: '+8%',
+      value: Array.isArray(students) ? students.length.toString() : '0',
+      change: '',
       changeType: 'positive',
       icon: GraduationCap,
     },
@@ -91,7 +91,7 @@ const Dashboard = () => {
     {
       id: 3,
       type: 'faculty',
-      message: 'Dr. Smith requested leave for tomorrow',
+      message: 'Dr. Atharva Sonawane requested leave for tomorrow',
       time: '6 hours ago',
       status: 'info',
     },
@@ -104,7 +104,8 @@ const Dashboard = () => {
     },
   ]
 
-  const upcomingClasses = timetable.classes.slice(0, 3).map(classData => ({
+  const safeClasses = timetable && Array.isArray(timetable.classes) ? timetable.classes : []
+  const upcomingClasses = safeClasses.slice(0, 3).map(classData => ({
     id: classData.id,
     subject: classData.subjectName,
     faculty: classData.facultyName,

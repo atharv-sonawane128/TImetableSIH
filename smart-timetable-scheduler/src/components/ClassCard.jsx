@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/core'
 import { Calendar, Users, Building2, Edit, Trash2 } from 'lucide-react'
 
-const ClassCard = ({ classData, onEdit, onDelete, isDragging = false, compact = false }) => {
+const ClassCard = ({ classData, onEdit, onDelete, isDragging = false, compact = false, labPartner = null }) => {
   const { attributes, listeners, setNodeRef, transform, isDragging: isDraggingState } = useDraggable({
     id: classData.id,
   })
@@ -11,6 +11,48 @@ const ClassCard = ({ classData, onEdit, onDelete, isDragging = false, compact = 
   } : undefined
 
   if (!classData) return null
+
+  // If this is a lab session and we have a partner, display combined format
+  if (compact && labPartner) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h4 className="font-medium text-sm text-gray-900">
+            Lab Sessions
+          </h4>
+          <div className="flex space-x-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit(classData)
+              }}
+              className="p-1 text-gray-400 hover:text-primary-600"
+            >
+              <Edit className="w-3 h-3" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete(classData.id)
+              }}
+              className="p-1 text-gray-400 hover:text-red-600"
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+        <div className="space-y-1">
+          <div className="text-xs">
+            <span className="font-medium text-blue-600">Session A:</span> {classData.subjectName} ({classData.classroomName})
+          </div>
+          <div className="text-xs">
+            <span className="font-medium text-green-600">Session B:</span> {labPartner.subjectName} ({labPartner.classroomName})
+          </div>
+        </div>
+        <p className="text-xs text-gray-600">{classData.facultyName} & {labPartner.facultyName}</p>
+      </div>
+    )
+  }
 
   if (compact) {
     return (

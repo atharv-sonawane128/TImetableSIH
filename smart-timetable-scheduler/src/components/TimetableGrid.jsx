@@ -6,19 +6,39 @@ import ClassCard from './ClassCard'
 const TimetableGrid = ({ classes, onSlotClick, onClassEdit, onClassDelete, selectedDivision }) => {
   const { timeSlots } = useData()
   
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-  const getClassesForSlot = (day, timeSlot) => {
-    return classes.filter(c => c.day === day && c.timeSlot === timeSlot.time)
+  // Helper to find classes occupying a slot
+  const getClassesForSlot = (day, slotId) => {
+    return classes.filter(c => c.day === day && c.slotId === slotId)
   }
 
-  const TimeSlotCell = ({ day, timeSlot, classesForSlot }) => {
+  // Helper to find lab partner for a given lab class
+  const findLabPartner = (classData) => {
+    if (!classData.isLabMode && !classData.spansTwoSlots) return null
+
+    // For lab sessions, partner is in the next slot for B, or previous for A
+    const partnerSlotId = classData.labSession === 'A' ? classData.slotId + 1 : classData.slotId - 1
+
+    return classes.find(c =>
+      c.day === classData.day &&
+      c.slotId === partnerSlotId &&
+      c.isLabMode &&
+      c.id !== classData.id &&
+      ((c.labSession === 'A' && classData.labSession === 'B') ||
+       (c.labSession === 'B' && classData.labSession === 'A'))
+    )
+  }
+
+  const TimeSlotCell = ({ day, timeSlot }) => {
     const { setNodeRef, isOver } = useDroppable({
       id: `slot-${day}-${timeSlot.id}`,
     })
 
+    const classesForSlot = getClassesForSlot(day, timeSlot.id)
+
     return (
-      <div
+      <td
         ref={setNodeRef}
         className={`
           min-h-[120px] p-3 border border-gray-200 rounded-lg transition-colors duration-200 cursor-pointer
@@ -29,15 +49,19 @@ const TimetableGrid = ({ classes, onSlotClick, onClassEdit, onClassDelete, selec
       >
         {classesForSlot.length > 0 ? (
           <div className="space-y-2">
-            {classesForSlot.map((classData) => (
-              <ClassCard
-                key={classData.id}
-                classData={classData}
-                onEdit={onClassEdit}
-                onDelete={onClassDelete}
-                compact={true}
-              />
-            ))}
+            {classesForSlot.map((classData) => {
+              const labPartner = findLabPartner(classData)
+              return (
+                <ClassCard
+                  key={classData.id}
+                  classData={classData}
+                  labPartner={labPartner}
+                  onEdit={onClassEdit}
+                  onDelete={onClassDelete}
+                  compact={true}
+                />
+              )
+            })}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-gray-400 hover:text-primary-500 transition-colors">
@@ -45,7 +69,7 @@ const TimetableGrid = ({ classes, onSlotClick, onClassEdit, onClassDelete, selec
             <span className="text-xs">Click to add class</span>
           </div>
         )}
-      </div>
+      </td>
     )
   }
 
@@ -69,25 +93,27 @@ const TimetableGrid = ({ classes, onSlotClick, onClassEdit, onClassDelete, selec
             </tr>
           </thead>
           <tbody>
-            {timeSlots.map((timeSlot) => (
-              <tr key={timeSlot.id}>
-                <td className="p-3 text-sm text-gray-600 bg-gray-50 border border-gray-200">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4" />
-                    <span>{timeSlot.time}</span>
-                  </div>
-                </td>
-                {days.map((day) => (
-                  <td key={`${day}-${timeSlot.id}`} className="border border-gray-200">
+            {timeSlots.map((timeSlot) => {
+              // Skip rendering row if all cells are merged (for lab spanning)
+              // But since rowspan is used, just render normally and skip cells in TimeSlotCell
+              return (
+                <tr key={timeSlot.id}>
+                  <td className="p-3 text-sm text-gray-600 bg-gray-50 border border-gray-200">
+                    <div className="flex items-center space-x-2">
+                      <Clock className="w-4 h-4" />
+                      <span>{timeSlot.time}</span>
+                    </div>
+                  </td>
+                  {days.map((day) => (
                     <TimeSlotCell
+                      key={`${day}-${timeSlot.id}`}
                       day={day}
                       timeSlot={timeSlot}
-                      classesForSlot={getClassesForSlot(day, timeSlot)}
                     />
-                  </td>
-                ))}
-              </tr>
-            ))}
+                  ))}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

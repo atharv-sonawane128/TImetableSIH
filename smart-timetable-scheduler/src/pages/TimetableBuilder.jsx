@@ -34,6 +34,19 @@ const TimetableBuilder = () => {
     selectedShift,
     setSelectedShift
   } = useData()
+
+  // Defensive check for subjects array
+  const safeSubjects = Array.isArray(subjects) ? subjects : []
+
+  // Filter out blank subject (0/0 hours) from subjects list
+  const filteredSubjects = safeSubjects.filter(s => !(s.name === '' || (s.hoursPerWeek === 0 && s.credits === 0)))
+
+  // Add 2 hours per week for Artificial Intelligence Lab
+  filteredSubjects.forEach(subject => {
+    if (subject.name === 'Artificial Intelligence Lab') {
+      subject.hoursPerWeek = 2
+    }
+  })
   const { user, loading } = useAuth()
   const navigate = useNavigate()
 
@@ -106,10 +119,19 @@ const TimetableBuilder = () => {
   }
 
   const handleClassSave = (classData) => {
+    console.log('handleClassSave called with:', classData)  // Debug log
+
     // Support bulk save for lab A+B with de-duplication/upsert
     if (Array.isArray(classData)) {
       const [labA, labB] = classData
       if (!labA || !labB) return
+
+      // Ensure lab sessions are assigned to two consecutive slots
+      const maxSlotId = Math.max(...selectedShift.timeSlots.map(s => s.id))
+      if (labA.slotId === maxSlotId || labB.slotId === maxSlotId) {
+        alert('Lab sessions cannot be assigned to the last slot as labs require 2-hour slots.')
+        return
+      }
 
       const key = {
         divisionId: labA.divisionId,
@@ -119,12 +141,15 @@ const TimetableBuilder = () => {
 
       // Remove ALL existing entries (lab or normal) for this division/day/slot first
       timetable.classes
-        .filter(c => c.divisionId === key.divisionId && c.day === key.day && c.slotId == key.slotId)
+        .filter(c => c.divisionId === key.divisionId && c.day === key.day && (c.slotId == key.slotId || c.slotId == key.slotId + 1))
         .forEach(c => deleteClass(c.id))
 
-      // Then add exactly two: A and B
-      addClass({ ...labA, labSession: 'A', id: undefined })
-      addClass({ ...labB, labSession: 'B', id: undefined })
+      // Add lab A for slotId
+      addClass({ ...labA, labSession: 'A', id: undefined, slotId: labA.slotId, isLabMode: true })
+      console.log('Added lab A:', labA)  // Debug log
+      // Add lab B for slotId + 1
+      addClass({ ...labB, labSession: 'B', id: undefined, slotId: labA.slotId + 1, isLabMode: true })
+      console.log('Added lab B:', { ...labB, labSession: 'B', id: undefined, slotId: labA.slotId + 1, isLabMode: true })  // Debug log
 
       setEditingClass(null)
       setShowClassForm(false)
@@ -174,7 +199,7 @@ const TimetableBuilder = () => {
   const isTimetableComplete = () => {
     if (!selectedDivision || !selectedShift) return false
 
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     const timeSlots = selectedShift.timeSlots
 
     // Check if all slots have classes assigned
@@ -211,6 +236,7 @@ const TimetableBuilder = () => {
 
   // Get classes for the selected division
   const divisionClasses = timetable.classes.filter(c => c.divisionId === selectedDivision?.id)
+  console.log('divisionClasses:', divisionClasses) // Debug log
 
   // Calculate statistics
   const totalClasses = divisionClasses.length

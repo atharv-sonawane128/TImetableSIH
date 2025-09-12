@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Printer, ArrowLeft } from 'lucide-react'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 
 const PrintableTimetable = () => {
   const location = useLocation()
@@ -8,6 +10,8 @@ const PrintableTimetable = () => {
   const { timetableData, division, shift } = location.state || {}
 
   const [isPrinting, setIsPrinting] = useState(false)
+  const printRef = useRef(null)
+  const pdfPrintRef = useRef(null)
 
   useEffect(() => {
     if (!timetableData || !division) {
@@ -18,8 +22,37 @@ const PrintableTimetable = () => {
 
   const handlePrint = () => {
     setIsPrinting(true)
-    window.print()
-    setTimeout(() => setIsPrinting(false), 1000)
+    if (printRef.current) {
+      html2canvas(printRef.current, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png')
+        const pdf = new jsPDF('landscape', 'pt', 'a4')
+        const imgProps = pdf.getImageProperties(imgData)
+        const pdfWidth = pdf.internal.pageSize.getWidth()
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+        pdf.save(`timetable_${division.name}_${new Date().toISOString().split('T')[0]}.pdf`)
+        setIsPrinting(false)
+      })
+    } else {
+      window.print()
+      setTimeout(() => setIsPrinting(false), 1000)
+    }
+  }
+
+  const handlePDFPrint = () => {
+    setIsPrinting(true)
+    if (pdfPrintRef.current) {
+      html2canvas(pdfPrintRef.current, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png')
+        const pdf = new jsPDF('landscape', 'pt', 'a4')
+        const imgProps = pdf.getImageProperties(imgData)
+        const pdfWidth = pdf.internal.pageSize.getWidth()
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+        pdf.save(`timetable_${division.name}_no_time_${new Date().toISOString().split('T')[0]}.pdf`)
+        setIsPrinting(false)
+      })
+    }
   }
 
   if (!timetableData || !division) {
@@ -34,7 +67,7 @@ const PrintableTimetable = () => {
   }
 
   // Group classes by day and time slot
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
   const timeSlots = shift?.timeSlots || []
 
   const getClassForSlot = (day, slotId) => {
@@ -53,19 +86,29 @@ const PrintableTimetable = () => {
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Timetable Builder</span>
           </button>
-          <button
-            onClick={handlePrint}
-            disabled={isPrinting}
-            className="btn-primary flex items-center space-x-2"
-          >
-            <Printer className="w-4 h-4" />
-            <span>{isPrinting ? 'Printing...' : 'Print Timetable'}</span>
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={handlePrint}
+              disabled={isPrinting}
+              className="btn-primary flex items-center space-x-2"
+            >
+              <Printer className="w-4 h-4" />
+              <span>{isPrinting ? 'Printing...' : 'Print Timetable'}</span>
+            </button>
+            <button
+              onClick={handlePDFPrint}
+              disabled={isPrinting}
+              className="btn-secondary flex items-center space-x-2"
+            >
+              <Printer className="w-4 h-4" />
+              <span>{isPrinting ? 'Printing...' : 'Print PDF (No Time Column)'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Printable Content */}
-      <div className="max-w-7xl mx-auto p-6 print:p-0">
+      <div ref={printRef} className="max-w-7xl mx-auto p-6 print:p-0">
         {/* Header */}
         <div className="text-center mb-8 print:mb-6">
           <h1 className="text-3xl font-bold text-gray-900 print:text-2xl">
@@ -141,6 +184,77 @@ const PrintableTimetable = () => {
         </div>
       </div>
 
+      {/* PDF-only Content (Hidden from regular view) */}
+      <div ref={pdfPrintRef} className="hidden max-w-7xl mx-auto p-6">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Timetable - {division.name}
+          </h1>
+          <p className="text-lg text-gray-600 mt-2">
+            Semester {division.semester} • {division.strength} Students
+          </p>
+          {shift && (
+            <p className="text-md text-gray-500 mt-1">
+              {shift.name} ({shift.timeRange})
+            </p>
+          )}
+        </div>
+
+        {/* Timetable Grid without Time Column */}
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100">
+                {days.map(day => (
+                  <th key={day} className="border border-gray-300 px-4 py-3 text-center font-semibold">
+                    {day}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {timeSlots.map(slot => (
+                <tr key={slot.id} className="hover:bg-gray-50">
+                  {days.map(day => {
+                    const classData = getClassForSlot(day, slot.id)
+                    return (
+                      <td key={`${day}-${slot.id}`} className="border border-gray-300 px-4 py-3">
+                        {classData ? (
+                          <div className="space-y-1">
+                            <div className="font-semibold text-sm">
+                              {classData.subjectName}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              {classData.facultyName}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              {classData.classroomName}
+                            </div>
+                            {classData.isLabMode && (
+                              <div className="text-xs text-blue-600 font-medium">
+                                Lab {classData.labSession}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-gray-400 text-sm">-</div>
+                        )}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 text-center text-sm text-gray-500">
+          <p>Generated on {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}</p>
+        </div>
+      </div>
+
       {/* Print Styles */}
       <style jsx>{`
         @media print {
@@ -192,3 +306,4 @@ const PrintableTimetable = () => {
 }
 
 export default PrintableTimetable
+

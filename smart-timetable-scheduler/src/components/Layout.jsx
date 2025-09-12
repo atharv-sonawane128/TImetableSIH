@@ -24,6 +24,8 @@ const Layout = () => {
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Timetable Builder', href: '/timetable', icon: Calendar },
     { name: 'Timetable Options', href: '/timetable-options', icon: Calendar },
+    { name: 'All Classroom Schedule', href: '/printable-classroom-schedules', icon: Building2 },
+    { name: 'All Faculty Schedule', href: '/printable-faculty-schedules', icon: Users },
     { name: 'Approvals', href: '/approvals', icon: CheckCircle },
     { name: 'Classrooms', href: '/classrooms', icon: Building2 },
     { name: 'Faculty', href: '/faculty', icon: Users },
